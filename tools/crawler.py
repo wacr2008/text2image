@@ -52,17 +52,25 @@ if __name__ == "__main__":
             
             soup2 = BeautifulSoup(urlopen(secondUrl).read(),"html.parser",from_encoding="utf8")
              
-            totalpagenum = soup2.find(id='dict_page_list').find('ul').find_all('span')[-2].a.contents[0]
+            try: 
+                totalpagenum = soup2.find(id='dict_page_list').find('ul').find_all('span')[-2].a.contents[0]
             
-            for pageind in range(1, int(totalpagenum)+1):
-                
-                soup2 = BeautifulSoup(urlopen( "%s/default/%d" %  (secondUrl.replace("?rf=dictindex",""),pageind)  ).read(),"html.parser",from_encoding="utf8")
-                for kk in soup2.find_all('div', class_='dict_detail_block') :
-                    thirdclass = kk.find(class_='detail_title').find('a').contents[0]
-                    thirdUrl = kk.find(class_='dict_dl_btn').a['href'] 
+                for pageind in range(1, int(totalpagenum)+1):
                     
-                    
-                    print( " " * 8 + "Level 3 :" + thirdclass + " " * 10 + "Downloading.....")
-                    tc += 1 
-                    urlretrieve(thirdUrl, "%s-%s.scel" % (secondclass,thirdclass),callbackfunc)
+                    soup2 = BeautifulSoup(urlopen( "%s/default/%d" %  (secondUrl.replace("?rf=dictindex",""),pageind)  ).read(),"html.parser",from_encoding="utf8")
+                    for kk in soup2.find_all('div', class_='dict_detail_block') :
+                        thirdclass = kk.find(class_='detail_title').find('a').contents[0]
+                        thirdUrl = kk.find(class_='dict_dl_btn').a['href'] 
+                        
+                        
+                        print( " " * 8 + "Level 3 :" + thirdclass + " " * 10 + "Downloading.....")
+                        tc += 1 
+                        try:
+                            urlretrieve(thirdUrl, "%s-%s.scel" % (secondclass,thirdclass),callbackfunc)
+                        except OSError:
+                            print(thirdUrl)
+            except IndexError:
+                print('totalpagenum Error')
+                pass
+
     print("Total :%d, %d, %d" % (fc, sc, tc))

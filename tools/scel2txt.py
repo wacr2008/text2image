@@ -16,7 +16,7 @@ import sys
 def __read_utf16_str(open_file, offset=-1, read_len=2):
     assert isinstance(open_file, BufferedReader)
     if offset >= 0:
-        open_file.seek(offset)
+        open_file.seek(offset)    
     return open_file.read(read_len).decode('UTF-16LE')
 
 
@@ -37,6 +37,7 @@ def transform(source_file_or_dir):
     :return: 返回包含word的生成器 generator
     """
 
+    print(source_file_or_dir)
     files = []
 
     if os.path.isdir(source_file_or_dir):
@@ -95,6 +96,8 @@ def transform(source_file_or_dir):
                         yield word_str
             except KeyError:
                 pass
+            except UnicodeDecodeError:
+                pass
             except struct.error:
                 # 求大神指针错误
                 # mask = struct.unpack('128B', f.read(128))[4]
@@ -109,11 +112,25 @@ def transform_and_save(source_file_or_dir, target_file):
     :param target_file: 保存的目标文件
     :return:
     """
-    words = []
-    for word_ in transform(source_file_or_dir=source_file_or_dir):
-        words.append(word_)
-    with open(target_file, "w+", encoding="utf8") as f:
-        f.write("\n".join(words))
+    print(source_file_or_dir)
+    words = [] 
+    cats = []
+    if os.path.isdir(source_file_or_dir):
+        files = []
+        cat_paths = [files  
+                 for files in glob.glob(source_file_or_dir + "/*")  
+                  if os.path.isdir(files)]  
+        cat_paths.sort()  
+        #os.path.basename(cat_path)
+        cats = [cat_path for cat_path in cat_paths]  
+        cats.append(source_file_or_dir)
+        for cat_dir in cats:
+            for word_ in transform(source_file_or_dir=cat_dir):
+                words.append(word_)
+            with open(target_file, "w+", encoding="utf8") as f:
+                f.write("\n".join(words))
+
+    
 
 
 def main():
