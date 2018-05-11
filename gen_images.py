@@ -20,25 +20,7 @@ color_list = [[(255, 255, 255), (0, 0, 0)],
               [(255, 0, 0), (255, 255, 255)],
               [(0, 0, 255), (255, 255, 255)],
               [(0, 255, 0), (255, 255, 255)]
-              ]
-
-
-def add_image_data_into_dset(DB_FNAME,more_img_file_path):
-  db=h5py.File(DB_FNAME,'w')
-  db.create_group('image')
-  for imname in os.listdir(more_img_file_path):
-    if imname.endswith('.jpg'):
-      full_path=more_img_file_path+imname
-      print(full_path,imname)
-      
-      j=Image.open(full_path)
-      imgSize=j.size
-      rawData=j.tobytes()
-      img=Image.frombytes('RGB',imgSize,rawData)
-      #img = img.astype('uint16')
-      db['image'].create_dataset(imname,data=img)
-  db.close()
-
+              ] 
 
 
 # 生成数字与字母的组合
@@ -62,18 +44,20 @@ def genearte_images(per_class=10000, continue_gen=False, save_path='/home/dl1/da
     label_index = [label.strip() for label in label_txt]
     txt_mode = 'w' if not continue_gen else 'a'
     image_counter = 1000000 if not continue_gen else 1000000 + len(os.listdir(save_path))
-    with open('train.txt', txt_mode) as f:
+    with open('simple.txt', txt_mode) as f:
         for color in color_list:
             count = 0
             while count < per_class:
-                label_line = str(image_counter) + '.jpg'
+                label_line = str(image_counter) + '.jpg '
+                label_line +=  str(label_index[:])
                 text_length = 15
                 text = ' '
                 for i in range(text_length):
                     ch = characters[random.randint(0, len(characters) - 1)]
-                    text += ch
-                    label_line += ' ' + str(label_index.index(ch))
-                text += ' '
+                    text += ch 
+                text += ' '                 
+
+                    
 
                 ftext = font.render(text, True, (255, 255, 255)) #, color[0])
                 f.write(label_line + '\n')
@@ -113,7 +97,7 @@ def genearte_hanzi_mages(per_class=300, continue_gen=False, save_path='/home/dl1
     characters = label_index[1:]
     txt_mode = 'w' if not continue_gen else 'a'
     image_counter = 1000000 if not continue_gen else 1000000 + len(os.listdir(save_path))
-    with open('train.txt', txt_mode) as f:
+    with open('hz_simple.txt', txt_mode) as f:
         for color in color_list:
             for _ in range(per_class):
                 count = 0
